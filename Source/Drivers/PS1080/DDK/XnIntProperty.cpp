@@ -24,6 +24,7 @@
 #include "XnIntProperty.h"
 #include <XnLog.h>
 #include <XnOS.h>
+#include <iostream>
 
 //---------------------------------------------------------------------------
 // Code
@@ -63,7 +64,9 @@ XnBool XnIntProperty::IsEqual(const void* pValue1, const void* pValue2) const
 
 XnStatus XnIntProperty::CallSetCallback(XnProperty::SetFuncPtr pFunc, const void* pValue, void* pCookie)
 {
+	std::cout<< "IntProperty \n";
 	SetFuncPtr pCallback = (SetFuncPtr)pFunc;
+	// pCallback(this, 0, pCookie);
 	return pCallback(this, *(const XnUInt64*)pValue, pCookie);
 }
 

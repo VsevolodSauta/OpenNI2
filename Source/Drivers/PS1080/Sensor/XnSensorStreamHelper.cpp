@@ -24,7 +24,7 @@
 #include "XnSensorStreamHelper.h"
 #include "XnStreamProcessor.h"
 #include <XnLog.h>
-
+#include <iostream>
 //---------------------------------------------------------------------------
 // Code
 //---------------------------------------------------------------------------
@@ -217,13 +217,15 @@ XnStatus XnSensorStreamHelper::BeforeSettingFirmwareParam(XnActualIntProperty& P
 
 	pPropData->CurrentTransaction.bShouldOpen = FALSE;
 	pPropData->CurrentTransaction.bChooseProcessor = FALSE;
-
+	std::cout << "before a \n";
 	// if stream is closed, we can just update the prop.
 	if (m_pStream->IsOpen())
 	{
+		std::cout << "before b \n";
 		// check if we need to close the stream first
 		if (pPropData->bAllowWhileOpen)
 		{
+			std::cout << "before c \n";
 			// before actual changing it, check if this is a processor property
 			if (pPropData->bProcessorProp)
 			{
@@ -234,16 +236,19 @@ XnStatus XnSensorStreamHelper::BeforeSettingFirmwareParam(XnActualIntProperty& P
 			}
 
 			// OK. change the value
+			std::cout << "Changing firmware value\n";
 			XnUInt64 nFirmwareValue = nValue;
 
 			if (pPropData->pStreamToFirmwareFunc != NULL)
 			{
+				std::cout << "Not null\n";
 				nRetVal = pPropData->pStreamToFirmwareFunc(nValue, &nFirmwareValue);
 				XN_IS_STATUS_OK(nRetVal);
 			}
 
 			// set the param in firmware
 			nRetVal = pPropData->pFirmwareProp->SetValue(nFirmwareValue);
+			std::cout << "Ret val" << nRetVal << std::endl;
 			XN_IS_STATUS_OK(nRetVal);
 
 			// no need to do anything after property will be set
@@ -251,6 +256,7 @@ XnStatus XnSensorStreamHelper::BeforeSettingFirmwareParam(XnActualIntProperty& P
 		}
 		else
 		{
+			std::cout << " Cant Change firmware value\n";
 			// we can't change the firmware param. We should first close the stream
 			nRetVal = m_pStream->Close();
 			XN_IS_STATUS_OK(nRetVal);
@@ -299,7 +305,8 @@ XnStatus XnSensorStreamHelper::SimpleSetFirmwareParam(XnActualIntProperty& Prope
 	
 	nRetVal = BeforeSettingFirmwareParam(Property, nValue);
 	XN_IS_STATUS_OK(nRetVal);
-
+	std::cout << "Firmware PARAM:	" << nValue << std::endl;
+	std::cout << "Firmware PARAM:	" << nRetVal << std::endl;
 	nRetVal = Property.UnsafeUpdateValue(nValue);
 	XN_IS_STATUS_OK(nRetVal);
 

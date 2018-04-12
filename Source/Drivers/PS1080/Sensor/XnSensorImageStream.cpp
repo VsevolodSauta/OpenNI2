@@ -36,7 +36,11 @@
 #include "Bayer.h"
 #include <XnProfiling.h>
 #include <math.h>
+<<<<<<< HEAD
 #include <XnFormatsStatus.h>
+=======
+#include <iostream>
+>>>>>>> adityadhawale/original
 
 //---------------------------------------------------------------------------
 // XnSensorImageStream class
@@ -734,11 +738,13 @@ XnStatus XnSensorImageStream::SetAutoWhiteBalance(XnBool bAutoWhiteBalance)
 XnStatus XnSensorImageStream::SetExposure(XnUInt64 nValue)
 {
 	XnStatus nRetVal = XN_STATUS_OK;
-
-	if (!m_Helper.GetPrivateData()->FWInfo.bImageAdjustmentsSupported)
-	{
-		return (XN_STATUS_UNSUPPORTED_VERSION);
-	}
+	std::cout <<"NVAL:	" << nValue << std::endl;
+	std::cout << "ADJUSTMENT SUPPORTED:	" <<m_Helper.GetPrivateData()->FWInfo.bImageAdjustmentsSupported << std::endl;
+	// if (!m_Helper.GetPrivateData()->FWInfo.bImageAdjustmentsSupported)
+	// {
+	// 	std::cout <<"NVAL Inside:	" << nValue << std::endl;
+	// 	return (XN_STATUS_UNSUPPORTED_VERSION);
+	// }
 
 	nRetVal = m_Helper.SimpleSetFirmwareParam(m_Exposure, (XnUInt16)nValue);
 	XN_IS_STATUS_OK(nRetVal);
@@ -933,6 +939,7 @@ XnStatus XN_CALLBACK_TYPE XnSensorImageStream::SetCroppingModeCallback(XnActualI
 
 XnStatus XN_CALLBACK_TYPE XnSensorImageStream::SetAutoExposureCallback(XnActualIntProperty* /*pSender*/, XnUInt64 nValue, void* pCookie)
 {
+	std::cout << "Auto Exposing \n";
 	XnSensorImageStream* pStream = (XnSensorImageStream*)pCookie;
 	return pStream->SetAutoExposure((XnBool)nValue);
 }

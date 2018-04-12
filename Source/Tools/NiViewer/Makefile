@@ -31,7 +31,6 @@ ifneq ("$(OSTYPE)","Darwin")
         USED_LIBS += rt 
 endif
 
-
 EXE_NAME = NiViewer
 
 CFLAGS += -Wall

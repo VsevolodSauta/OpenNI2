@@ -50,7 +50,7 @@ create_page("../../NOTICE", "legal", "Legal Stuff & Acknowledgments")
 create_page("../../ReleaseNotes.txt", "release_notes", "Release Notes")
 
 errfile = "Temp/doxygen_error"
-subprocess.check_call(["doxygen", "Doxyfile"], stdout=open(os.devnull,"w"), stderr=open(errfile,"w"))
+#subprocess.check_call(["doxygen", "Doxyfile"], stdout=open(os.devnull,"w"), stderr=open(errfile,"w"))
 
 # create Java
 javaDocExe = ""

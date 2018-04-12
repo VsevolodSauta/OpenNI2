@@ -23,6 +23,7 @@
 #include "OniProperties.h"
 #include "OniInternal.h"
 #include <XnLog.h>
+#include <iostream>
 
 oni::implementation::Context g_Context;
 
@@ -201,6 +202,7 @@ ONI_C_API OniBool oniDeviceGetDepthColorSyncEnabled(OniDeviceHandle device)
 
 ONI_C_API OniStatus oniDeviceSetProperty(OniDeviceHandle device, int propertyId, const void* data, int dataSize)
 {
+	std::cout << "ID:	" << propertyId << std::endl;
 	g_Context.clearErrorLogger();
 	return device->pDevice->setProperty(propertyId, data, dataSize);
 }

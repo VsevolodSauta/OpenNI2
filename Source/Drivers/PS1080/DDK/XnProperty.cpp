@@ -26,6 +26,7 @@
 #include <XnOS.h>
 #include <XnCallback.h>
 #include <XnLog.h>
+#include <iostream>
 
 //---------------------------------------------------------------------------
 // Code
@@ -60,6 +61,7 @@ XnStatus XnProperty::SetValue(const void* pValue)
 {
 	if (m_pSetCallback == NULL)
 	{
+		std::cout << "set a\n";
 		XN_LOG_WARNING_RETURN(XN_STATUS_DEVICE_PROPERTY_READ_ONLY, XN_MASK_DDK, "Property %s.%s is read only.", GetModule(), GetName());
 	}
 
@@ -83,8 +85,12 @@ XnStatus XnProperty::SetValue(const void* pValue)
 	else
 	{
 		XnStatus nRetVal = CallSetCallback(m_pSetCallback, pValue, m_pSetCallbackCookie);
+		std::cout << "Cookie " << m_pSetCallbackCookie << std::endl;
+		std::cout << "Pval " << pValue << std::endl;
+		std::cout << "Callback " << m_pSetCallback << std::endl;
 		if (nRetVal != XN_STATUS_OK)
 		{
+			std::cout << "set g\n";
 			if (m_LogSeverity != -1)
 			{
 				xnLogWrite(XN_MASK_DDK, (XnLogSeverity)m_LogSeverity, __FILE__, __LINE__, "Failed setting %s.%s: %s", GetModule(), GetName(), xnGetStatusString(nRetVal));
@@ -93,6 +99,7 @@ XnStatus XnProperty::SetValue(const void* pValue)
 		}
 		else
 		{
+			std::cout << "set i\n";
 			xnLogWrite(XN_MASK_DDK, (XnLogSeverity)m_LogSeverity, __FILE__, __LINE__, "%s.%s was successfully set.", GetModule(), GetName());
 		}
 	}
