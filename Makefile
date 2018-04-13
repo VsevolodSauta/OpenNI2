@@ -207,6 +207,14 @@ release: | all doc $(FINAL_DIR)
 	cd Packaging; tar -cjf Final/$(TARBALL_NAME).tar.bz2 $(PRODUCT_STRING)
 	rm -rf Packaging/$(PRODUCT_STRING)
 
+install:
+	test "_${PREFIX_DIR}" != "_"
+	mkdir -p ${PREFIX_DIR}/lib
+	cp -R Bin/${OUT_DIR}/lib* ${PREFIX_DIR}/lib
+	cp -R Bin/${OUT_DIR}/OpenNI2 ${PREFIX_DIR}/lib
+	mkdir -p ${PREFIX_DIR}/include
+	cp -R Include/* ${PREFIX_DIR}/include
+
 clean: $(CLEAN_SUBDIRS)
 
 .PHONY: \
