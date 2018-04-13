@@ -35,6 +35,16 @@ openni is the namespace of the entire C++ API of OpenNI
 namespace openni
 {
 
+#define WARN_UNUSED __attribute__((warn_unused_result))
+
+static inline void HandleStatus(
+	const char* source_file,
+	int source_line,
+	const char* source_code, Status e);
+
+#define HANDLE_STATUS(...) HandleStatus(__FILE__, __LINE__, #__VA_ARGS__, __VA_ARGS__)
+
+
 /** Pixel type used to store depth images. */
 typedef uint16_t				DepthPixel;
 
@@ -769,7 +779,7 @@ public:
 	@param [in] sensorType The type of sensor the stream should produce data from.
 	@returns Status code indicating success or failure for this operation.
 	*/
-	inline Status create(const Device& device, SensorType sensorType);
+	inline Status create(const Device& device, SensorType sensorType) WARN_UNUSED;
 
 	/**
 	Destroy this stream.  This function is currently called automatically by the destructor, but it is
@@ -794,7 +804,7 @@ public:
 	/**
 	Starts data generation from this video stream.
 	*/
-	Status start()
+	Status start() WARN_UNUSED
 	{
 		if (!isValid())
 		{
@@ -827,7 +837,7 @@ public:
 	@param [out] pFrame Pointer to a @ref VideoFrameRef object to hold the reference to the new frame.
 	@returns Status code to indicated success or failure of this function.
 	*/
-	Status readFrame(VideoFrameRef* pFrame)
+	Status readFrame(VideoFrameRef* pFrame) WARN_UNUSED
 	{
 		if (!isValid())
 		{
@@ -848,7 +858,7 @@ public:
 	@param [in] pListener Pointer to a @ref VideoStream::NewFrameListener object (or a derivative) that will respond to this event.
 	@returns Status code indicating success or failure of the operation.
 	*/
-	Status addNewFrameListener(NewFrameListener* pListener)
+	Status addNewFrameListener(NewFrameListener* pListener) WARN_UNUSED
 	{
 		if (!isValid())
 		{
@@ -878,7 +888,7 @@ public:
 	@param [in] pAllocator Pointer to the frame buffers allocator object. Pass NULL to return to default frame allocator.
 	@returns ONI_STATUS_OUT_OF_FLOW The frame buffers allocator cannot be set while stream is streaming.
 	*/
-	Status setFrameBuffersAllocator(FrameAllocator* pAllocator)
+	Status setFrameBuffersAllocator(FrameAllocator* pAllocator) WARN_UNUSED
 	{
 		if (!isValid())
 		{
@@ -920,7 +930,7 @@ public:
 	@param [in,out] dataSize IN: Size of the buffer passed in the @c data argument. OUT: the actual written size.
 	@returns Status code indicating success or failure of this operation.
 	*/
-	Status getProperty(int propertyId, void* data, int* dataSize) const
+	Status getProperty(int propertyId, void* data, int* dataSize) const WARN_UNUSED
 	{
 		if (!isValid())
 		{
@@ -940,7 +950,7 @@ public:
 	@param [in] dataSize Size of the data to be written to the property.
 	@returns Status code indicating success or failure of this operation.
 	*/
-	Status setProperty(int propertyId, const void* data, int dataSize)
+	Status setProperty(int propertyId, const void* data, int dataSize) WARN_UNUSED
 	{
 		if (!isValid())
 		{
@@ -959,7 +969,7 @@ public:
 	VideoMode getVideoMode() const
 	{
 		VideoMode videoMode;
-		getProperty<OniVideoMode>(STREAM_PROPERTY_VIDEO_MODE, static_cast<OniVideoMode*>(&videoMode));
+		HANDLE_STATUS(getProperty<OniVideoMode>(STREAM_PROPERTY_VIDEO_MODE, static_cast<OniVideoMode*>(&videoMode)));
 		return videoMode;
 	}
 
@@ -971,7 +981,7 @@ public:
 	@param [in] videoMode Desired new video mode for this stream.
 	returns Status code indicating success or failure of this operation.
 	*/
-	Status setVideoMode(const VideoMode& videoMode)
+	Status setVideoMode(const VideoMode& videoMode) WARN_UNUSED
 	{
 		return setProperty<OniVideoMode>(STREAM_PROPERTY_VIDEO_MODE, static_cast<const OniVideoMode&>(videoMode));
 	}
@@ -1053,7 +1063,7 @@ public:
 	@param [in] height New vertical height for the cropping window, in pixels.
 	@returns Status code indicating success or failure of this operation.
 	*/
-	Status setCropping(int originX, int originY, int width, int height)
+	Status setCropping(int originX, int originY, int width, int height) WARN_UNUSED
 	{
 		OniCropping cropping;
 		cropping.enabled = true;
@@ -1068,7 +1078,7 @@ public:
 	Disables cropping.
 	@returns Status code indicating success or failure of this operation.
 	*/
-	Status resetCropping()
+	Status resetCropping() WARN_UNUSED
 	{
 		OniCropping cropping;
 		cropping.enabled = false;
@@ -1095,7 +1105,7 @@ public:
 	@param [in] isEnabled true to enable mirroring, false to disable it.
 	@returns Status code indicating the success or failure of this operation.
 	*/
-	Status setMirroringEnabled(bool isEnabled)
+	Status setMirroringEnabled(bool isEnabled) WARN_UNUSED
 	{
 		return setProperty<OniBool>(STREAM_PROPERTY_MIRRORING, isEnabled ? TRUE : FALSE);
 	}
@@ -1132,7 +1142,7 @@ public:
 	@returns Status code indicating success or failure of this operation.
 	*/
 	template <class T>
-	Status setProperty(int propertyId, const T& value)
+	Status WARN_UNUSED setProperty(int propertyId, const T& value)
 	{
 		return setProperty(propertyId, &value, sizeof(T));
 	}
@@ -1147,7 +1157,7 @@ public:
 	@returns Status code indicating success or failure of this operation.
 	*/
 	template <class T>
-	Status getProperty(int propertyId, T* value) const
+	Status WARN_UNUSED getProperty(int propertyId, T* value) const
 	{
 		int size = sizeof(T);
 		return getProperty(propertyId, value, &size);
@@ -1177,7 +1187,7 @@ public:
 	@param [in] dataSize size of the buffer passed in @c data.
 	@returns Status code indicating success or failure of this operation.
 	*/
-	Status invoke(int commandId, void* data, int dataSize)
+	Status invoke(int commandId, void* data, int dataSize) WARN_UNUSED
 	{
 		if (!isValid())
 		{
@@ -1197,7 +1207,7 @@ public:
 	@returns Status code indicating success or failure of this operation.
 	*/
 	template <class T>
-	Status invoke(int commandId, T& value)
+	Status WARN_UNUSED invoke(int commandId, T& value)
 	{
 		return invoke(commandId, &value, sizeof(T));
 	}
@@ -1319,7 +1329,7 @@ public:
 
 	@remark For opening a recording file, pass the file path as a uri.
 	*/
-	inline Status open(const char* uri);
+	inline Status open(const char* uri) WARN_UNUSED;
 
 	/**
 	Closes the device.  This properly closes any files or shuts down hardware, as appropriate.  This
@@ -1437,7 +1447,7 @@ public:
 	@param [in,out] dataSize IN: Size of the buffer passed in the @c data argument. OUT: the actual written size.
 	@returns Status code indicating results of this operation.
 	*/
-	Status getProperty(int propertyId, void* data, int* dataSize) const
+	Status getProperty(int propertyId, void* data, int* dataSize) const WARN_UNUSED
 	{
 		return (Status)oniDeviceGetProperty(m_device, propertyId, data, dataSize);
 	}
@@ -1453,7 +1463,7 @@ public:
 	@param [in] dataSize Size of the data to be written to the property.
 	@returns Status code indicating results of this operation.
 	*/
-	Status setProperty(int propertyId, const void* data, int dataSize)
+	Status setProperty(int propertyId, const void* data, int dataSize) WARN_UNUSED
 	{
 		return (Status)oniDeviceSetProperty(m_device, propertyId, data, dataSize);
 	}
@@ -1501,7 +1511,7 @@ public:
 	@param [in] mode Desired new value for the image registration mode.
 	@returns Status code for the operation.
 	*/
-	Status setImageRegistrationMode(ImageRegistrationMode mode)
+	Status setImageRegistrationMode(ImageRegistrationMode mode) WARN_UNUSED
 	{
 		return setProperty<ImageRegistrationMode>(DEVICE_PROPERTY_IMAGE_REGISTRATION, mode);
 	}
@@ -1534,7 +1544,7 @@ public:
 	@param [in] isEnabled Set to TRUE to enable synchronization, FALSE to disable it
 	@returns Status code indicating success or failure of this operation
 	*/
-	Status setDepthColorSyncEnabled(bool isEnabled)
+	Status setDepthColorSyncEnabled(bool isEnabled) WARN_UNUSED
 	{
 		Status rc = STATUS_OK;
 
@@ -1566,7 +1576,7 @@ public:
 	@returns Status code indicating success or failure of this operation.
 	*/
 	template <class T>
-	Status setProperty(int propertyId, const T& value)
+	Status WARN_UNUSED setProperty(int propertyId, const T& value)
 	{
 		return setProperty(propertyId, &value, sizeof(T));
 	}
@@ -1581,7 +1591,7 @@ public:
 	@returns Status code indicating success or failure of this operation.
 	*/
 	template <class T>
-	Status getProperty(int propertyId, T* value) const
+	Status WARN_UNUSED getProperty(int propertyId, T* value) const
 	{
 		int size = sizeof(T);
 		return getProperty(propertyId, value, &size);
@@ -1606,7 +1616,7 @@ public:
 	@param [in] dataSize size of the buffer passed in @c data.
 	@returns Status code indicating success or failure of this operation.
 	*/
-	Status invoke(int commandId, void* data, int dataSize)
+	Status invoke(int commandId, void* data, int dataSize) WARN_UNUSED
 	{
 		return (Status)oniDeviceInvoke(m_device, commandId, data, dataSize);
 	}
@@ -1621,7 +1631,7 @@ public:
 	@returns Status code indicating success or failure of this operation.
 	*/
 	template <class T>
-	Status invoke(int propertyId, T& value)
+	Status WARN_UNUSED invoke(int propertyId, T& value)
 	{
 		return invoke(propertyId, &value, sizeof(T));
 	}
@@ -1637,7 +1647,7 @@ public:
 	}
 
 	/** @internal **/
-	inline Status _openEx(const char* uri, const char* mode);
+	inline Status _openEx(const char* uri, const char* mode) WARN_UNUSED;
 
 private:
 	Device(const Device&);
@@ -1651,7 +1661,7 @@ private:
 		}
 	}
 
-	inline Status _setHandle(OniDeviceHandle deviceHandle);
+	inline Status _setHandle(OniDeviceHandle deviceHandle) WARN_UNUSED;
 
 private:
 	PlaybackControl* m_pPlaybackControl;
@@ -1731,7 +1741,7 @@ public:
 	* @param [in] speed Desired new value of playback speed, as ratio of original recording.
 	* @returns Status code indicating success or failure of this operation.
 	*/
-	Status setSpeed(float speed)
+	Status setSpeed(float speed) WARN_UNUSED
 	{
 		if (!isValid())
 		{
@@ -1770,7 +1780,7 @@ public:
 	* @param [in] repeat New value for repeat -- true to enable, false to disable
 	* @returns Status code indicating success or failure of this operations.
 	*/
-	Status setRepeatEnabled(bool repeat)
+	Status setRepeatEnabled(bool repeat) WARN_UNUSED
 	{
 		if (!isValid())
 		{
@@ -1790,7 +1800,7 @@ public:
 	* @param [in] frameIndex Frame index to move playback to
 	* @returns Status code indicating success or failure of this operation
 	*/
-	Status seek(const VideoStream& stream, int frameIndex)
+	Status seek(const VideoStream& stream, int frameIndex) WARN_UNUSED
 	{
 		if (!isValid())
 		{
@@ -1826,7 +1836,7 @@ public:
 		return m_pDevice != NULL;
 	}
 private:
-	Status attach(Device* device)
+	Status attach(Device* device) WARN_UNUSED
 	{
 		if (!device->isValid() || !device->isFile())
 		{
@@ -1848,7 +1858,7 @@ private:
 	{
 		if (pDevice != NULL)
 		{
-			attach(pDevice);
+			HANDLE_STATUS(attach(pDevice));
 		}
 	}
 
@@ -1859,12 +1869,11 @@ class CameraSettings
 {
 public:
 	// setters
-	Status setAutoExposureEnabled(bool enabled)
+	Status setAutoExposureEnabled(bool enabled) WARN_UNUSED
 	{
-		std::cout << "Auto E:xppp " << enabled << std::endl;
 		return setProperty(STREAM_PROPERTY_AUTO_EXPOSURE, enabled ? TRUE : FALSE);
 	}
-	Status setAutoWhiteBalanceEnabled(bool enabled)
+	Status setAutoWhiteBalanceEnabled(bool enabled) WARN_UNUSED
 	{
 		return setProperty(STREAM_PROPERTY_AUTO_WHITE_BALANCE, enabled ? TRUE : FALSE);
 	}
@@ -1884,11 +1893,11 @@ public:
 		return rc == STATUS_OK && enabled == TRUE;
 	}
 
-	Status setGain(int gain)
+	Status setGain(int gain) WARN_UNUSED
 	{
 		return setProperty(STREAM_PROPERTY_GAIN, gain);
 	}
-	Status setExposure(int exposure)
+	Status setExposure(int exposure) WARN_UNUSED
 	{
 		return setProperty(STREAM_PROPERTY_EXPOSURE, exposure);
 	}
@@ -1916,14 +1925,14 @@ public:
 	bool isValid() const {return m_pStream != NULL;}
 private:
 	template <class T>
-	Status getProperty(int propertyId, T* value) const
+	Status WARN_UNUSED getProperty(int propertyId, T* value) const
 	{
 		if (!isValid()) return STATUS_NOT_SUPPORTED;
 
 		return m_pStream->getProperty<T>(propertyId, value);
 	}
 	template <class T>
-	Status setProperty(int propertyId, const T& value)
+	Status WARN_UNUSED setProperty(int propertyId, const T& value)
 	{
 		if (!isValid()) return STATUS_NOT_SUPPORTED;
 
@@ -2113,7 +2122,7 @@ public:
 	This will load all available drivers, and see which devices are available
 	It is forbidden to call any other method in OpenNI before calling @ref initialize().
 	*/
-	static Status initialize()
+	static Status initialize() WARN_UNUSED
 	{
 		return (Status)oniInitialize(ONI_API_VERSION); // provide version of API, to make sure proper struct sizes are used
 	}
@@ -2174,7 +2183,7 @@ public:
 	@param [out] pReadyStreamIndex The index of the first stream that has new frame available.
 	@param [in] timeout [Optional] A timeout before returning if no stream has new data. Default value is @ref TIMEOUT_FOREVER.
 	*/
-	static Status waitForAnyStream(VideoStream** pStreams, int streamCount, int* pReadyStreamIndex, int timeout = TIMEOUT_FOREVER)
+	static Status waitForAnyStream(VideoStream** pStreams, int streamCount, int* pReadyStreamIndex, int timeout = TIMEOUT_FOREVER) WARN_UNUSED
 	{
 		static const int ONI_MAX_STREAMS = 50;
 		OniStreamHandle streams[ONI_MAX_STREAMS];
@@ -2209,7 +2218,7 @@ public:
 	* @param pListener Pointer to the Listener to be added to the list
 	* @returns Status code indicating success or failure of this operation.
 	*/
-	static Status addDeviceConnectedListener(DeviceConnectedListener* pListener)
+	static Status addDeviceConnectedListener(DeviceConnectedListener* pListener) WARN_UNUSED
 	{
 		if (pListener->m_deviceConnectedCallbacksHandle != NULL)
 		{
@@ -2224,7 +2233,7 @@ public:
 	* @param pListener Pointer to the Listener to be added to the list
 	* @returns Status code indicating success or failure of this operation.
 	*/
-	static Status addDeviceDisconnectedListener(DeviceDisconnectedListener* pListener)
+	static Status addDeviceDisconnectedListener(DeviceDisconnectedListener* pListener) WARN_UNUSED
 	{
 		if (pListener->m_deviceDisconnectedCallbacksHandle != NULL)
 		{
@@ -2239,7 +2248,7 @@ public:
 	* @param pListener Pointer to the Listener to be added to the list
 	* @returns Status code indicating success or failure of this operation.
 	*/
-	static Status addDeviceStateChangedListener(DeviceStateChangedListener* pListener)
+	static Status addDeviceStateChangedListener(DeviceStateChangedListener* pListener) WARN_UNUSED
 	{
 		if (pListener->m_deviceStateChangedCallbacksHandle != NULL)
 		{
@@ -2292,7 +2301,7 @@ public:
 	 * @retval STATUS_OK Upon successful completion.
 	 * @retval STATUS_ERROR Upon any kind of failure.
 	 */
-	static Status setLogOutputFolder(const char *strLogOutputFolder)
+	static Status setLogOutputFolder(const char *strLogOutputFolder) WARN_UNUSED
 	{
 		return (Status)oniSetLogOutputFolder(strLogOutputFolder);
 	}
@@ -2306,7 +2315,7 @@ public:
 	 * @retval STATUS_OK Upon successful completion.
 	 * @retval STATUS_ERROR Upon any kind of failure.
 	 */
-	static Status getLogFileName(char *strFileName, int nBufferSize)
+	static Status getLogFileName(char *strFileName, int nBufferSize) WARN_UNUSED
 	{
 		return (Status)oniGetLogFileName(strFileName, nBufferSize);
 	}
@@ -2319,7 +2328,7 @@ public:
 	 * @retval STATUS_OK Upon successful completion.
 	 * @retval STATUS_ERROR Upon any kind of failure.
 	 */
-	static Status setLogMinSeverity(int nMinSeverity)
+	static Status setLogMinSeverity(int nMinSeverity) WARN_UNUSED
 	{
 		return(Status) oniSetLogMinSeverity(nMinSeverity);
 	}
@@ -2332,7 +2341,7 @@ public:
 	* @retval STATUS_OK Upon successful completion.
 	* @retval STATUS_ERROR Upon any kind of failure.
 	 */
-	static Status setLogConsoleOutput(bool bConsoleOutput)
+	static Status setLogConsoleOutput(bool bConsoleOutput) WARN_UNUSED
 	{
 		return (Status)oniSetLogConsoleOutput(bConsoleOutput);
 	}
@@ -2345,7 +2354,7 @@ public:
 	* @retval STATUS_OK Upon successful completion.
 	* @retval STATUS_ERROR Upon any kind of failure.
 	 */
-	static Status setLogFileOutput(bool bFileOutput)
+	static Status setLogFileOutput(bool bFileOutput) WARN_UNUSED
 	{
 		return (Status)oniSetLogFileOutput(bFileOutput);
 	}
@@ -2360,7 +2369,7 @@ public:
 	 * @retval STATUS_ERROR Upon any kind of failure.
 	 */
 	
-	static Status setLogAndroidOutput(bool bAndroidOutput)
+	static Status setLogAndroidOutput(bool bAndroidOutput) WARN_UNUSED
 	{
 		return (Status)oniSetLogAndroidOutput(bAndroidOutput);
 	}
@@ -2420,7 +2429,7 @@ public:
 	@param [out] pDepthY Pointer to a place to store the Y coordinate of the output value, measured in pixels with 0 at top of image
 	@param [out] pDepthZ Pointer to a place to store the Z(depth) coordinate of the output value, measured in the @ref PixelFormat of depthStream
 	*/
-	static Status convertWorldToDepth(const VideoStream& depthStream, float worldX, float worldY, float worldZ, int* pDepthX, int* pDepthY, DepthPixel* pDepthZ)
+	static Status convertWorldToDepth(const VideoStream& depthStream, float worldX, float worldY, float worldZ, int* pDepthX, int* pDepthY, DepthPixel* pDepthZ) WARN_UNUSED
 	{
 		float depthX, depthY, depthZ;
 		Status rc = (Status)oniCoordinateConverterWorldToDepth(depthStream._getHandle(), worldX, worldY, worldZ, &depthX, &depthY, &depthZ);
@@ -2440,7 +2449,7 @@ public:
 	@param [out] pDepthY Pointer to a place to store the Y coordinate of the output value, measured in pixels with 0.0 at the top of the image
 	@param [out] pDepthZ Pointer to a place to store the Z(depth) coordinate of the output value, measured in millimeters with 0.0 at the camera lens
 	*/
-	static Status convertWorldToDepth(const VideoStream& depthStream, float worldX, float worldY, float worldZ, float* pDepthX, float* pDepthY, float* pDepthZ)
+	static Status convertWorldToDepth(const VideoStream& depthStream, float worldX, float worldY, float worldZ, float* pDepthX, float* pDepthY, float* pDepthZ) WARN_UNUSED
 	{
 		return (Status)oniCoordinateConverterWorldToDepth(depthStream._getHandle(), worldX, worldY, worldZ, pDepthX, pDepthY, pDepthZ);
 	}
@@ -2455,7 +2464,7 @@ public:
 	@param [out] pWorldY Pointer to a place to store the Y coordinate of the output value, measured in millimeters in World coordinates
 	@param [out] pWorldZ Pointer to a place to store the Z coordinate of the output value, measured in millimeters in World coordinates
 	*/
-	static Status convertDepthToWorld(const VideoStream& depthStream, int depthX, int depthY, DepthPixel depthZ, float* pWorldX, float* pWorldY, float* pWorldZ)
+	static Status convertDepthToWorld(const VideoStream& depthStream, int depthX, int depthY, DepthPixel depthZ, float* pWorldX, float* pWorldY, float* pWorldZ) WARN_UNUSED
 	{
 		return (Status)oniCoordinateConverterDepthToWorld(depthStream._getHandle(), float(depthX), float(depthY), float(depthZ), pWorldX, pWorldY, pWorldZ);
 	}
@@ -2470,7 +2479,7 @@ public:
 	@param [out] pWorldY Pointer to a place to store the Y coordinate of the output value, measured in millimeters in World coordinates
 	@param [out] pWorldZ Pointer to a place to store the Z coordinate of the output value, measured in millimeters in World coordinates
 	*/
-	static Status convertDepthToWorld(const VideoStream& depthStream, float depthX, float depthY, float depthZ, float* pWorldX, float* pWorldY, float* pWorldZ)
+	static Status convertDepthToWorld(const VideoStream& depthStream, float depthX, float depthY, float depthZ, float* pWorldX, float* pWorldY, float* pWorldZ) WARN_UNUSED
 	{
 		return (Status)oniCoordinateConverterDepthToWorld(depthStream._getHandle(), depthX, depthY, depthZ, pWorldX, pWorldY, pWorldZ);
 	}
@@ -2486,7 +2495,7 @@ public:
 	@param [out] pColorX The X coordinate of the color pixel that overlaps the given depth pixel, measured in pixels
 	@param [out] pColorY The Y coordinate of the color pixel that overlaps the given depth pixel, measured in pixels
 	*/
-	static Status convertDepthToColor(const VideoStream& depthStream, const VideoStream& colorStream, int depthX, int depthY, DepthPixel depthZ, int* pColorX, int* pColorY)
+	static Status convertDepthToColor(const VideoStream& depthStream, const VideoStream& colorStream, int depthX, int depthY, DepthPixel depthZ, int* pColorX, int* pColorY) WARN_UNUSED
 	{
 		return (Status)oniCoordinateConverterDepthToColor(depthStream._getHandle(), colorStream._getHandle(), depthX, depthY, depthZ, pColorX, pColorY);
 	}
@@ -2536,7 +2545,7 @@ public:
      * @param	[in]	fileName	The name of a file which will contain the recording.
 	 * @returns Status code which indicates success or failure of the operation.
      */
-    Status create(const char* fileName)
+    Status create(const char* fileName) WARN_UNUSED
     {
         if (!isValid())
         {
@@ -2566,7 +2575,7 @@ public:
 	 *	a lossy compression, which means that when the recording will be played-back, there might
 	 *  be small differences from the original frame. Default value is false.
      */
-    Status attach(VideoStream& stream, bool allowLossyCompression = false)
+    Status attach(VideoStream& stream, bool allowLossyCompression = false) WARN_UNUSED
     {
         if (!isValid() || !stream.isValid())
         {
@@ -2584,7 +2593,7 @@ public:
 	 * and store them in the file.
 	 * You may not attach additional streams once recording was started.
      */
-    Status start()
+    Status start() WARN_UNUSED
     {
 		if (!isValid())
 		{
@@ -2692,9 +2701,7 @@ Status Device::open(const char* uri)
 		return rc;
 	}
 
-	_setHandle(deviceHandle);
-
-	return STATUS_OK;
+	return _setHandle(deviceHandle);
 }
 
 Status Device::_openEx(const char* uri, const char* mode)
@@ -2760,6 +2767,18 @@ void Device::close()
 
 		m_device = NULL;
 	}
+}
+
+
+static inline void HandleStatus(const char* source_file, int source_line, const char* source_code, Status e)
+{
+  if (e != STATUS_OK)
+  {
+    std::cerr << source_file << ":" << source_line << ": Error occurred: " << e << std::endl;
+    std::cerr << "While executing the following: " << source_code << std::endl;
+    std::cerr << "Error: " << OpenNI::getExtendedError() << std::endl;
+    std::exit(1);
+  }
 }
 
 }
