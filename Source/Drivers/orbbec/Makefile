@@ -35,7 +35,7 @@ LIB_NAME = orbbec
 
 LIB_DIRS += ../../../ThirdParty/PSCommon/XnLib/Bin/$(PLATFORM)-$(CFG)
 LIB_DIRS += $(BIN_DIR)/$(PLATFORM)-$(CFG)
-LIB_DIRS += ../../../ThirdParty/Orbbec/filter/$(PLATFORM)-$(CFG)
+LIB_DIRS += ../../../ThirdParty/Orbbec/filter/$(PLATFORM)
 USED_LIBS = XnLib dl pthread DepthUtils
 USED_LIBS += SoftFilter
 ifneq ("$(OSTYPE)","Darwin")
