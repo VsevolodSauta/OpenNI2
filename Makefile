@@ -212,8 +212,8 @@ install:
 	mkdir -p ${PREFIX_DIR}/lib
 	cp -R Bin/${OUT_DIR}/lib* ${PREFIX_DIR}/lib
 	cp -R Bin/${OUT_DIR}/OpenNI2 ${PREFIX_DIR}/lib
-	mkdir -p ${PREFIX_DIR}/include
-	cp -R Include/* ${PREFIX_DIR}/include
+	mkdir -p ${PREFIX_DIR}/include/openni2
+	cp -R Include/* ${PREFIX_DIR}/include/openni2
 
 clean: $(CLEAN_SUBDIRS)
 
