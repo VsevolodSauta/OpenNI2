@@ -2777,7 +2777,7 @@ static inline void HandleStatus(const char* source_file, int source_line, const 
     std::cerr << source_file << ":" << source_line << ": Error occurred: " << e << std::endl;
     std::cerr << "While executing the following: " << source_code << std::endl;
     std::cerr << "Error: " << OpenNI::getExtendedError() << std::endl;
-    std::exit(1);
+    abort();
   }
 }
 
