@@ -159,6 +159,10 @@ protected:
 
 	void SetAllowDoubleSOFPackets(XnBool bAllow) { m_bAllowDoubleSOF = bAllow; }
 
+protected:
+	bool IsFrameCorrupted() const
+	{ return m_bFrameCorrupted; }
+
 private:
 	//---------------------------------------------------------------------------
 	// Class Members

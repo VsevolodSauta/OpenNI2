@@ -243,52 +243,55 @@ void XnDepthProcessor::OnEndOfFrame(const XnSensorProtocolResponseHeader* pHeade
 		}
 	}
 
-	OniFrame* pFrame = GetWriteFrame();
-	pFrame->sensorType = ONI_SENSOR_DEPTH;
-
-	pFrame->videoMode.pixelFormat = GetStream()->GetOutputFormat();
-	pFrame->videoMode.resolutionX = GetStream()->GetXRes();
-	pFrame->videoMode.resolutionY = GetStream()->GetYRes();
-	pFrame->videoMode.fps = GetStream()->GetFPS();
-
-	if (GetStream()->m_FirmwareCropMode.GetValue() != XN_FIRMWARE_CROPPING_MODE_DISABLED)
+	if (!IsFrameCorrupted())
 	{
-		pFrame->width = (int)GetStream()->m_FirmwareCropSizeX.GetValue();
-		pFrame->height = (int)GetStream()->m_FirmwareCropSizeY.GetValue();
-		pFrame->cropOriginX = (int)GetStream()->m_FirmwareCropOffsetX.GetValue();
-		pFrame->cropOriginY = (int)GetStream()->m_FirmwareCropOffsetY.GetValue();
-		pFrame->croppingEnabled = TRUE;
-	}
-	else
-	{
-		pFrame->width = pFrame->videoMode.resolutionX;
-		pFrame->height = pFrame->videoMode.resolutionY;
-		pFrame->cropOriginX = 0;
-		pFrame->cropOriginY = 0;
-		pFrame->croppingEnabled = FALSE;
-	}
+		OniFrame* pFrame = GetWriteFrame();
+		pFrame->sensorType = ONI_SENSOR_DEPTH;
 
-	pFrame->stride = pFrame->width * GetStream()->GetBytesPerPixel();
+		pFrame->videoMode.pixelFormat = GetStream()->GetOutputFormat();
+		pFrame->videoMode.resolutionX = GetStream()->GetXRes();
+		pFrame->videoMode.resolutionY = GetStream()->GetYRes();
+		pFrame->videoMode.fps = GetStream()->GetFPS();
 
-    //softfilter
-    OniDepthPixel* pDepth = (OniDepthPixel*)pFrame->data;
-    xnOSMemCopy(DepthBuf,pDepth,pFrame->width*pFrame->height*sizeof(OniDepthPixel));
+		if (GetStream()->m_FirmwareCropMode.GetValue() != XN_FIRMWARE_CROPPING_MODE_DISABLED)
+		{
+			pFrame->width = (int)GetStream()->m_FirmwareCropSizeX.GetValue();
+			pFrame->height = (int)GetStream()->m_FirmwareCropSizeY.GetValue();
+			pFrame->cropOriginX = (int)GetStream()->m_FirmwareCropOffsetX.GetValue();
+			pFrame->cropOriginY = (int)GetStream()->m_FirmwareCropOffsetY.GetValue();
+			pFrame->croppingEnabled = TRUE;
+		}
+		else
+		{
+			pFrame->width = pFrame->videoMode.resolutionX;
+			pFrame->height = pFrame->videoMode.resolutionY;
+			pFrame->cropOriginX = 0;
+			pFrame->cropOriginY = 0;
+			pFrame->croppingEnabled = FALSE;
+		}
+
+		pFrame->stride = pFrame->width * GetStream()->GetBytesPerPixel();
+
+	    //softfilter
+	    OniDepthPixel* pDepth = (OniDepthPixel*)pFrame->data;
+	    xnOSMemCopy(DepthBuf,pDepth,pFrame->width*pFrame->height*sizeof(OniDepthPixel));
 
 #if (XN_PLATFORM == XN_PLATFORM_ANDROID_ARM)
 
 #elif (XN_PLATFORM == XN_PLATFORM_WIN32 || XN_PLATFORM == XN_PLATFORM_LINUX_X86 || XN_PLATFORM == XN_PLATFORM_LINUX_ARM)
 
 #if (FILTER == 1)
-    Softfilter(_buf, (unsigned short*)(DepthBuf), pFrame->width, pFrame->height);
+	    Softfilter(_buf, (unsigned short*)(DepthBuf), pFrame->width, pFrame->height);
 #endif
 
 #endif
 
-    for(int i=0;i< pFrame->width*pFrame->height;i++){
-            pDepth[i]=m_pShiftToDepthTable[DepthBuf[i]];
-            if(pDepth[i]==5506 || pDepth[i]==288)
-                pDepth[i]=0;
-    }
+	    for(int i=0;i< pFrame->width*pFrame->height;i++){
+	            pDepth[i]=m_pShiftToDepthTable[DepthBuf[i]];
+	            if(pDepth[i]==5506 || pDepth[i]==288)
+	                pDepth[i]=0;
+	    }
+	}
 	// call base
 	XnFrameStreamProcessor::OnEndOfFrame(pHeader);
 }
